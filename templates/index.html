@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<table id="customers" class="table table-striped table-bordered" style="width:100%">
+    <thead class="font-bold">
+        <tr class="font-medium">
+            <th >Name</th>
+            <th >Email</th>
+            <th >Phone Number</th>
+            <th >Date</th>
+            <th >Time</th>
+        </tr>
+    </thead>
+</table>
+{% endblock %}
+
+{% block script %}
+<script>
+$( document ).ready(function() {
+    console.log( "ready!" );
+
+    $('#customers').DataTable( {
+        "dom": '<"toolbar"><"search_input"f>rtip',
+        "responsive": true,
+        "language": {searchPlaceholder: "eg. Kevin"},
+        "length": '10',
+        "bSearchable":true,
+        "order": [[ 0, "desc" ]],
+        "serverSide": true,
+        "ajax": {
+            "data": function ( d ) {
+                        d.date = $('#datetimepicker1>input').val();
+                    },
+        "url": '/page',
+        "type": 'POST',
+            },
+        "columns": [{ "data": 0, "width": "20%"},{ "data": 1 ,"width": "20%"},{ "data": 2, "width": "20%"},
+                    { "data": 3, "width": "20%"}, { "data": 4, "width": "20%"}],
+
+    } );
+    //$(".toolbar").html('<div id="datePicker" class="input-group date row dt-buttons col"><input type="buttons" class="datePicker  margin10" placeholder="Click to enter Date" readonly></input><span class="fa fa-calendar-alt"></span></div>');
+    $(".toolbar").html('<div class="form-group"><div class="input-group date" id="datetimepicker1"><input placeholder="Enter date" type="text" class="form-control"><div class="input-group-append"><span class="input-group-text fa-clickable" id="clearDate"><i class="fa fa-times-circle fa-fw"></i></span></div><span class="input-group-addon"></span></div></div>');
+
+
+
+
+    $('#datetimepicker1').datepicker({
+            format: 'dd/mm/yyyy',
+            clearBtn: true
+        });
+    $('#datetimepicker1').datepicker().on('changeDate clearDate', function(e) {
+            console.log("triggered");
+            $('#customers').DataTable().draw();
+        });
+     $('#clearDate').click(function(){ $('#datetimepicker1').datepicker('clearDates')});
+});
+
+</script>
+{% endblock %}
+
+
