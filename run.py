@@ -1,6 +1,6 @@
 from app import app, db, bcrypt, login_manager
 import flask
-from flask import render_template, request, url_for, redirect, flash, send_from_directory
+from flask import render_template, request, url_for, redirect, json
 from app import User, Customers, CustomersGrantedEntry
 from sqlalchemy import or_
 from datetime import datetime
@@ -8,7 +8,7 @@ import flask_admin
 from flask_admin.contrib.sqla import ModelView
 from Forms import LoginForm
 from flask_login import login_user, logout_user, current_user
-import os
+import uuid
 
 '''import logging
 logging.basicConfig(
@@ -114,6 +114,62 @@ def not_found(error):
 @app.errorhandler(500)
 def processing_error(error):
     return render_template('500.html', error=error), 500
+
+
+# endpoint to create new customer
+@app.route("/customer", methods=["POST"])
+def add_customer():
+    name = request.json['name']
+    email = request.json['email']
+    phone_number = request.json['phone_number']
+
+    now = datetime.now()
+    date = now.date()
+    time =  now.time()
+
+    exists = True
+    while exists:
+        uuid_string = uuid.uuid4().hex
+        exists = db.session.query(Customers.id).filter_by(uuid = uuid_string).scalar() is not None
+
+    new_customer = Customers(name, phone_number, email, date, time, uuid_string)
+
+    db.session.add(new_customer)
+    db.session.commit()
+
+    result_dict = {"name": new_customer.name, "email": new_customer.email, "phone_number": new_customer.phone_number,
+                   "date": new_customer.date.strftime('%a, %d/%m/%Y'), "time": new_customer.time.strftime('%H:%M'),
+                   "uuid": new_customer.uuid}
+    return json.dumps(result_dict)
+
+
+# endpoint to create new customer
+@app.route("/admit", methods=["POST"])
+def add_customer():
+    uuid_string = request.json['uuid']
+
+    now = datetime.now()
+    date = now.date()
+    time = now.time()
+
+    exists = True
+    while exists:
+        uuid_string = uuid.uuid4().hex
+        exists = db.session.query(CustomersGrantedEntry.id).filter_by(uuid=uuid_string).scalar() is not None
+
+    new_customer = Customers(date, time, uuid_string)
+
+    db.session.add(new_customer)
+    try:
+        db.session.commit()
+    except:
+        return json.dumps({"error": "error"})
+
+    result_dict = {"name": new_customer.name, "email": new_customer.email, "phone_number": new_customer.phone_number,
+                   "date": new_customer.date.strftime('%a, %d/%m/%Y'), "time": new_customer.time.strftime('%H:%M'),
+                   "uuid": new_customer.uuid}
+    return json.dumps(result_dict)
+
 
 if __name__ == '__main__':
     port = 8080
