@@ -175,9 +175,9 @@ def check_approval():
                            "date": customer.date.strftime('%a, %d/%m/%Y'), "time": customer.time.strftime('%H:%M'),
                            "firebase_token": customer.firebase_token}
         else:
-            result_dict = {"error": "customer not approved"}
+            result_dict = {"error": "Customer not approved"}
     else:
-        result_dict = {"error": "no customer by that id"}
+        result_dict = {"error": "QR code not recognized."}
 
     return json.dumps(result_dict)
 
@@ -193,21 +193,15 @@ def grant_approval():
         customer = query.first()
         customer.grant_customer_approval()
         db.session.commit()
-        result_dict = {"success": "customer granted approval"}
+        result_dict = {"success": "Customer granted approval"}
     else:
-        result_dict = {"error": "no customer by that id"}
+        result_dict = {"error": "No customer by that id"}
     push_service = FCMNotification(
         api_key="AAAAVb7FMzM:APA91bEvhiscqN1aIUePPKSFcUaB-zLwGjle5Idt67F7VPiXzVtPiTQ70r9RmsbFxi14sHVKCnDsZxD-KI0qv2CMP8Kid7wCuSVqR7ZmnshMF2IIFGp6pnwVJD4br6XvWmwsdrhW68yq")
 
     registration_id = firebase_token
     message_body = "Registration Approved. Click to view entry pass."
-    data_message = {
-        "Nick": "Mario",
-        "body": "great match!",
-        "Room": "PortugalVSDenmark"
-    }
-    result = push_service.notify_single_device(registration_id=registration_id, message_body=message_body,
-                                               data_message=data_message)
+    result = push_service.notify_single_device(registration_id=registration_id, message_body=message_body)
     return json.dumps(result_dict)
 
 
@@ -222,9 +216,9 @@ def reject_approval():
         customer = query.first()
         customer.reject_customer_approval()
         db.session.commit()
-        result_dict = {"success": "customer rejected approval"}
+        result_dict = {"success": "Customer not approved"}
     else:
-        result_dict = {"error": "no customer by that id"}
+        result_dict = {"error": "No customer by that id"}
     return json.dumps(result_dict)
 
 
