@@ -294,6 +294,8 @@ def admit_customer():
     date = now.date()
     time = now.time()
 
+    result_dict = []
+
     customer_query = db.session.query(Customers).filter_by(firebase_token=firebase_token)
 
     if customer_query.count() > 0:
