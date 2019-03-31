@@ -289,12 +289,12 @@ def get_all_customer_list():
 @app.route("/admittedcustomers", methods=["GET"])
 def get_admitted_customer_list():
 
-    customers = get_all_admitted_customers()
+    granted_customers = get_all_admitted_customers()
     result_dict = []
-    for customer in customers:
-        result_dict.append({"name": customer.name, "email": customer.email, "phone_number": customer.phone_number,
-                   "date": customer.date.strftime('%a, %d/%m/%Y'), "time": customer.time.strftime('%H:%M'),
-                    "firebase_token": customer.firebase_token})
+    for granted_customer in granted_customers:
+        result_dict.append({"name": granted_customer.customer.name, "email": granted_customer.customer.email, "phone_number": granted_customer.customer.phone_number,
+                   "date": granted_customer.date.strftime('%a, %d/%m/%Y'), "time": granted_customer.time.strftime('%H:%M'),
+                    "firebase_token": granted_customer.customer.firebase_token})
 
     return json.dumps(result_dict)
 
