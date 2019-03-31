@@ -4,7 +4,7 @@ from flask_login import LoginManager
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Date, Time, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, Time, ForeignKey, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from flask_login import UserMixin
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -44,15 +44,39 @@ class Customers(db.Model):
     email = Column(String)
     date = Column(Date)
     time = Column(Time)
-    uuid = Column(String)
+    firebase_token = Column(String)
+    approved = Column(Boolean, default=False)
 
-    def __init__(self, name, phone_number, email, date, time, uuid):
+    def __init__(self, name, phone_number, email, date, time, firebase_token):
         self.name = name
         self.phone_number = phone_number
         self.email = email
         self.date = date
         self.time = time
-        self.uuid = uuid
+        self.firebase_token = firebase_token
+
+    def grant_customer_approval(self):
+        self.approved = True
+
+    def reject_customer_approval(self):
+        self.approved = False
+
+
+
+def get_approved_customers():
+    return db.session.query(Customers).filter_by(approved=True)
+
+
+def get_unapproved_customers():
+    return db.session.query(Customers).filter_by(approved=False)
+
+
+def get_all_customers():
+    return db.session.query(Customers)
+
+
+def check_admit_eligiblity(customer):
+    return db.session.query(CustomersGrantedEntry).filter_by(customer=customer).scalar() is not None
 
 
 class CustomersGrantedEntry(db.Model):
