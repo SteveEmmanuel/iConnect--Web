@@ -329,6 +329,35 @@ def admit_customer():
 
     return json.dumps(result_dict)
 
+# endpoint to admit customer
+@app.route("/rejectadmission", methods=["POST"])
+def reject_admission_customer():
+    firebase_token = request.json['firebase_token']
+
+    now = datetime.now()
+    date = now.date()
+    time = now.time()
+
+    result_dict = []
+
+    customer_query = db.session.query(Customers).filter_by(firebase_token=firebase_token)
+
+    if customer_query.count() > 0:
+        customer_granted_query = db.session.query(CustomersGrantedEntry).filter_by(customer_id=customer_query.first().id)
+
+        if customer_granted_query.count() > 0:
+            db.session.delete(customer_granted_query.first())
+            result_dict = {"success": "Customer admission revoked."}
+            try:
+                db.session.commit()
+            except:
+                return json.dumps({"error": "commit error"})
+        else:
+            return json.dumps({"error": "Customer not recognized"})
+
+    return json.dumps(result_dict)
+
+
 
 if __name__ == '__main__':
     port = 8080
