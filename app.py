@@ -92,6 +92,9 @@ class CustomersGrantedEntry(db.Model):
     time = Column(Time)
 
 
+def get_all_admitted_customers():
+    return db.session.query(CustomersGrantedEntry)
+
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)

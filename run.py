@@ -2,7 +2,7 @@ from app import app, db, bcrypt, login_manager
 import flask
 from flask import render_template, request, url_for, redirect, json
 from app import User, Customers, CustomersGrantedEntry, get_approved_customers,\
-    check_admit_eligiblity, get_unapproved_customers, get_all_customers
+    check_admit_eligiblity, get_unapproved_customers, get_all_customers, get_all_admitted_customers
 from sqlalchemy import or_
 from datetime import datetime
 import flask_admin
@@ -276,6 +276,20 @@ def get_unapproved_customer_list():
 def get_all_customer_list():
 
     customers = get_all_customers()
+    result_dict = []
+    for customer in customers:
+        result_dict.append({"name": customer.name, "email": customer.email, "phone_number": customer.phone_number,
+                   "date": customer.date.strftime('%a, %d/%m/%Y'), "time": customer.time.strftime('%H:%M'),
+                    "firebase_token": customer.firebase_token})
+
+    return json.dumps(result_dict)
+
+
+# endpoint to get all customers list
+@app.route("/admittedcustomers", methods=["GET"])
+def get_admitted_customer_list():
+
+    customers = get_all_admitted_customers()
     result_dict = []
     for customer in customers:
         result_dict.append({"name": customer.name, "email": customer.email, "phone_number": customer.phone_number,
